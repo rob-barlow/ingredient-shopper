@@ -40,6 +40,7 @@ These terms have exactly these meanings in every spec.
 | Term | Meaning |
 |---|---|
 | **Product** | One kind of item the store sells, e.g. "Semi-skimmed milk, 2 pints". Products are unbranded and there is one of each kind (no premium/value variants). |
+| **Unit** | The amount you get when you buy one of a product, e.g. "2 pints", "500g", "each". Every product has one. *(Amendment 1)* |
 | **Category** | A grouping of products, e.g. Dairy, Bakery, Fruit & Veg. Each product belongs to exactly one category. |
 | **Catalogue** | All products the store lists. |
 | **Stock level** | How many units of a product are available to sell. |
@@ -95,6 +96,11 @@ Decisions that affect more than one feature.
 - Images come from **free-to-use stock image sources**, found by searching the product's plain name (e.g. "milk").
 - If an image is missing or fails to load, a **placeholder** is shown instead. A product never appears without some image.
 
+### 5.5 Categories
+*(Amendment 1, 2026-09-23, from 001.)*
+- Categories are a **fixed list**, defined by the seed data.
+- In v1, admins **choose from** the list when creating or editing a product. They can't add, rename or delete categories.
+
 ---
 
 ## 6. Feature map (v1)
@@ -115,15 +121,9 @@ Each feature gets its own folder `specs/NNN-name/` with `spec.md`, then `plan.md
 
 ## 7. Future (named, not specified)
 
-Planned for later. **No detail is specified here on purpose.** Each will get its own spec when it's picked up.
+*(Amendment 2, 2026-09-23: this list moved to the backlog.)*
 
-- **007:** Shopping-list image → basket
-- **008:** Admin assist: prefill a new product's details from its name
-- Customer accounts and login (likely via an external OIDC identity provider), with multiple admin accounts
-- Secret code linked to a customer account
-- Simulated (fake) payment at checkout
-- Delivery to an address, as an alternative to collection
-- Choosing the number of portions for a recipe import
+Future features and nice-to-haves live in **[`backlog.md`](../../backlog.md)**, each with a priority and its source. **No detail is specified there on purpose.** Each item gets its own spec when it's picked up.
 
 ---
 
