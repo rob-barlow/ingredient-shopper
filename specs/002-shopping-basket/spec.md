@@ -111,10 +111,7 @@ Terms in **bold** are defined in the [000 glossary](../000-overview/spec.md#3-gl
 
 ## 5. Handed to 003 (Place order)
 
-Decided here, but part of the **place order** flow. These become 003's acceptance criteria, and this section will then shrink to a pointer.
-
-- When the guest tries to place an order, the **clamp rule** is applied to every line.
-- If any line was clamped or removed, the order is **not placed**. The guest stays on the page and sees the clamp messages, so they can review and try again.
+*(Moved to [003 §3, "Stock check at order time"](../003-place-order/spec.md), AC-10 to AC-15.)*
 
 ---
 

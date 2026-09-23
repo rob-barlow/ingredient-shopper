@@ -18,6 +18,8 @@ Everything **not** in the v1 MVP (000 §6) that we might want later. This is a l
 | Sorting options in the product list (price, etc.) | Nice to have | 🟢 | 001 |
 | Admins can delete products | Nice to have | 🟢 | 002 |
 | Clean up abandoned baskets | Nice to have | 🟢 | 002 §7 |
+| Separate checkout page | Nice to have | 🟢 | 003 |
+| Warn the guest when prices changed since they loaded the basket | Nice to have | 🟢 | 003 |
 | End-to-end tests | Engineering | 🟢 | Constitution IX |
 
 *When an item is picked up, give it a spec folder and move it out of this list.*
