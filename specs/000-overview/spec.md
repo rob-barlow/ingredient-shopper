@@ -39,8 +39,8 @@ These terms have exactly these meanings in every spec.
 
 | Term | Meaning |
 |---|---|
-| **Product** | One kind of item the store sells, e.g. "Semi-skimmed milk, 2 pints". Products are unbranded and there is one of each kind (no premium/value variants). |
-| **Unit** | The amount you get when you buy one of a product, e.g. "2 pints", "500g", "each". Every product has one. *(Amendment 1)* |
+| **Product** | One kind of item the store sells, e.g. "Semi-skimmed milk" (1 l). Products are unbranded and there is one of each kind (no premium/value variants). |
+| **Unit** | The amount you get when you buy one of a product. Every product has one, made of an **amount** (a positive number) and a **measure** from the fixed list **g, kg, ml, l, each**. E.g. flour `1.5 kg`, milk `1 l`, eggs `6 each`. *(Amendment 1; structure added in Amendment 3, from 004.)* |
 | **Category** | A grouping of products, e.g. Dairy, Bakery, Fruit & Veg. Each product belongs to exactly one category. |
 | **Catalogue** | All products the store lists. |
 | **Stock level** | How many units of a product are available to sell. |
