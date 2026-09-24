@@ -1,0 +1,21 @@
+# Normalise line endings: LF in the repository, whatever the OS.
+* text=auto eol=lf
+
+# Windows-only scripts need CRLF to run correctly.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Solution files are edited by Visual Studio, which expects CRLF.
+*.sln text eol=crlf
+
+# Binary files: never touch.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.jar  binary
+*.woff binary
+*.woff2 binary
