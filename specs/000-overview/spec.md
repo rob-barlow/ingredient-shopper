@@ -55,7 +55,7 @@ These terms have exactly these meanings in every spec.
 | **Ingredient** | One line of a recipe, e.g. "200g plain flour". |
 | **Match** | The product the store picks to satisfy an ingredient. |
 | **Substitute** | An alternative in-stock product offered when the matched product is out of stock. |
-| **Portions** | The number of servings a recipe import is scaled to. Fixed at **2** in v1. |
+| **Servings** | How many people a recipe serves, as stated by the recipe. In v1, recipe imports use the recipe's quantities **as written**, with no scaling, and show the servings for information. *(Amendment 4, 2026-09-24, from 006. Replaces "Portions: fixed at 2".)* |
 
 ---
 

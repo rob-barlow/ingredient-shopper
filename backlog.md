@@ -14,7 +14,9 @@ Everything **not** in the v1 MVP (000 §6) that we might want later. This is a l
 | Basket shared across devices (needs customer accounts) | Feature | 🟢 | 002 |
 | Simulated (fake) payment at checkout | Feature | 🟢 | 000 |
 | Delivery to an address, as an alternative to collection | Feature | 🟡 | 000 |
-| Choosing the number of portions for a recipe import | Feature | 🟡 | 000 |
+| Scaling a recipe import to a chosen number of servings | Feature | 🟡 | 000, 006 |
+| Recipe import: when partly in stock, offer the available amount **plus** a substitute for the rest | Nice to have | 🟢 | 006 |
+| Live progress while a recipe imports (e.g. "found 8 ingredients…") | Nice to have | 🟢 | 006 |
 | Sorting options in the product list (price, etc.) | Nice to have | 🟢 | 001 |
 | Admins can delete products | Nice to have | 🟢 | 002 |
 | Clean up abandoned baskets | Nice to have | 🟢 | 002 §7 |
