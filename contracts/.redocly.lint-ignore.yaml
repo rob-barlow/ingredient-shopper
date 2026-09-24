@@ -1,0 +1,6 @@
+# Deliberate, documented exceptions to the lint rules in redocly.yaml.
+# Paths are relative to this folder.
+openapi.yaml:
+  operation-4xx-response:
+    # The health check answers 200 (up) or 503 (down). It has no client errors.
+    - '#/paths/~1actuator~1health/get/responses'

@@ -1,0 +1,19 @@
+# Lint rules for openapi.yaml. Run: npx @redocly/cli@latest lint --config contracts/redocly.yaml contracts/openapi.yaml
+extends:
+  - recommended
+
+rules:
+  # Our only server entry is the local dev backend, on purpose (plan §9).
+  # Deployed addresses are Stage 4's concern and come from configuration.
+  no-server-example.com: off
+
+  # Every operation must state its security explicitly: `security: []` for public,
+  # `bearerAuth` for admin. Kept as an error (004 AC-8).
+  security-defined: error
+
+  # Business operations must document their error responses.
+  operation-4xx-response: error
+
+  # Error responses and bearerAuth are unused until features add endpoints.
+  # Kept as warnings, which disappear as the contract grows.
+  no-unused-components: warn

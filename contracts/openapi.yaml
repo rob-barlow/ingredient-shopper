@@ -1,0 +1,151 @@
+openapi: 3.1.0
+
+info:
+  title: Ingredient Shopper API
+  version: 1.0.0
+  summary: The contract between the Ingredient Shopper frontend and backend.
+  description: |
+    **Contract-first** (constitution Article III): this file is written and agreed
+    *before* the code. The Spring server interfaces and the Blazor client are both
+    **generated** from it, so neither side can drift from it without failing to compile.
+
+    **Versioning** (Article IIIa): every business path starts with `/v1`. Non-breaking
+    additions stay in v1. A breaking change adds `/v2` paths alongside `/v1`. Every
+    change is recorded in `CHANGELOG.md`.
+
+    **Conventions**
+    - Money is **integer pence** (`pricePence: 120` = £1.20). Never decimals (ADR-005).
+    - IDs are UUIDs unless stated otherwise.
+    - Errors use RFC 9457 **Problem Details** (`application/problem+json`), with
+      field-level `errors` for validation failures.
+    - Admin endpoints live under `/v1/admin/**` and need a bearer token from
+      `POST /v1/auth/login` (ADR-006).
+
+    Feature endpoints are added by each feature's tasks (see `specs/`).
+  license:
+    name: Unlicensed (portfolio project)
+    identifier: LicenseRef-Unlicensed
+
+servers:
+  - url: http://localhost:8080
+    description: Local development backend (SERVER_PORT, plan §9)
+
+tags:
+  - name: operations
+    description: Health and other operational endpoints (not versioned; not part of the product)
+
+paths:
+  /actuator/health:
+    get:
+      tags: [operations]
+      operationId: getHealth
+      summary: Health check
+      security: []   # public: every operation states its security explicitly
+      description: |
+        Served by Spring Boot Actuator (constitution Article V). Listed here so the API
+        tests' contract validation recognises it. The backend doesn't implement a
+        controller for it.
+      responses:
+        '200':
+          description: The backend and its database are up.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '503':
+          description: The backend or its database is down.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Opaque admin session token from `POST /v1/auth/login` (ADR-006).
+
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+      additionalProperties: true
+
+    Problem:
+      type: object
+      description: RFC 9457 Problem Details. Used for **every** error response.
+      required: [title, status]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: Identifies the kind of problem. Defaults to `about:blank`.
+          default: about:blank
+        title:
+          type: string
+          description: Short, human-readable summary, e.g. "Validation failed".
+        status:
+          type: integer
+          description: The HTTP status code, repeated for convenience.
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          description: Human-readable explanation specific to this occurrence.
+        instance:
+          type: string
+          format: uri-reference
+          description: The request path that caused the problem.
+        errors:
+          type: array
+          description: Field-level validation errors. Present only on 422 responses.
+          items:
+            $ref: '#/components/schemas/FieldError'
+
+    FieldError:
+      type: object
+      required: [field, message]
+      properties:
+        field:
+          type: string
+          description: The request field that failed validation, e.g. `price`.
+        message:
+          type: string
+          description: A message suitable for showing next to that field.
+
+  responses:
+    BadRequest:
+      description: The request was malformed (e.g. unreadable JSON).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: No valid admin session (ADR-006, 004 AC-8).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: The requested resource doesn't exist.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Conflict:
+      description: The request conflicts with current state (e.g. stock changed).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ValidationFailed:
+      description: One or more fields broke a rule. See `errors`.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
