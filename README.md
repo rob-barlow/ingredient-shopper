@@ -32,9 +32,7 @@ It's a learning and portfolio project, built with **spec-driven development (SDD
 
 ## Running locally
 
-*Coming in T-002: see [docs/local-setup.md](docs/local-setup.md) once it exists.*
-
-In short: copy `.env.example` to `.env` and fill it in, then start the backend and the frontend with one command each.
+Follow **[docs/local-setup.md](docs/local-setup.md)** to install Java 25, .NET 10 and PostgreSQL 18, create the databases and fill in `.env`. Then start the backend and the frontend with one command each (added in T-004 and T-006).
 
 ## How work happens
 
