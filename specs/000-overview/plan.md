@@ -32,19 +32,19 @@ flowchart LR
 
 | Part | Choice | Notes |
 |---|---|---|
-| Backend language | **Java 25 (LTS)** | New to Rob, and the main learning goal (ADR-002) |
-| Backend framework | **Spring Boot** (latest stable at setup) | Web, Security, Data JPA, Validation, Actuator |
+| Backend language | **Java 25 (LTS)**: Eclipse Temurin **25.0.4** | New to Rob, and the main learning goal (ADR-002) |
+| Backend framework | **Spring Boot 4.1** (4.1.1 at setup) | Web, Security, Data JPA, Validation, Actuator |
 | Build | **Maven** (with wrapper) | ADR-015 |
 | Contract | **OpenAPI 3.1**, `contracts/openapi.yaml` | Server interfaces **and** frontend client are generated from it (ADR-013, ADR-014) |
-| Database | **PostgreSQL** (latest stable at setup) | Schema managed by **Flyway** migrations (ADR-004) |
-| Frontend | **Blazor WebAssembly** (.NET 10 LTS), standalone | Not Blazor Server, for Article V (ADR-003) |
+| Database | **PostgreSQL 18** (18.6 at setup) | Schema managed by **Flyway** migrations (ADR-004) |
+| Frontend | **Blazor WebAssembly** (.NET 10 LTS, SDK 10.0.302 / runtime 10.0.12 at setup), standalone | Not Blazor Server, for Article V (ADR-003) |
 | AI | **Claude API**, official **Anthropic Java SDK** | Model chosen by the evaluation (ADR-012) |
 | HTML parsing | **jsoup** | Reading recipe pages (ADR-011) |
 | Backend tests | **JUnit 5**, **Mockito**, **AssertJ** | Unit tests |
 | API-level tests | **JUnit 5** + **REST Assured**, in a separate `api-tests` project | Black-box and structure-independent (ADR-016) |
 | Frontend tests | **bUnit** + **xUnit** | Component unit tests |
 
-*The exact versions are pinned and verified in the first setup task.*
+*Versions checked on 2026-09-24 (T-002) against endoflife.date and winget. Minor and patch updates within these lines are fine. Moving to a new major line (e.g. Spring Boot 5) is a new ADR. Library versions (jsoup, NSwag, openapi-generator, etc.) are pinned in the build files when each is added.*
 
 ---
 
