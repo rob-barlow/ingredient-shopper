@@ -1,6 +1,6 @@
 # 000 — Setup Tasks (Stage 1)
 
-> **Status:** Draft
+> **Status:** ✅ Agreed (2026-09-24)
 > **Implements:** [plan.md](plan.md) (architecture) and constitution Articles III–V, IX, XII
 > **Last updated:** 2026-09-24
 
@@ -16,16 +16,16 @@ Each task follows Article XII: one branch, one PR, CI must pass, and only Rob me
 
 | ID | Task | Owner | Depends on | Issue |
 |---|---|---|---|---|
-| T-001 | Repo housekeeping | AI | — | |
-| T-002 | Pin versions and write local setup guide | AI | T-001 | |
-| T-003 | Contract skeleton | AI | T-001 | |
-| T-004 | Backend skeleton | AI | T-002, T-003 | |
-| T-005 | Database and Flyway, with fixed categories | AI | T-004 | |
-| T-006 | Frontend skeleton | AI | T-002, T-003 | |
-| T-007 | API test harness | AI | T-004 | |
-| T-008 | CI workflow | AI | T-004, T-006, T-007 | |
-| T-009 | GitHub project board, labels, milestones and issues | AI | T-001 | |
-| T-010 | Protect `main` | **Rob** | T-008 | |
+| T-001 | Repo housekeeping | AI | — | [#1](https://github.com/rob-barlow/ingredient-shopper/issues/1) |
+| T-002 | Pin versions and write local setup guide | AI | T-001 | [#2](https://github.com/rob-barlow/ingredient-shopper/issues/2) |
+| T-003 | Contract skeleton | AI | T-001 | [#3](https://github.com/rob-barlow/ingredient-shopper/issues/3) |
+| T-004 | Backend skeleton | AI | T-002, T-003 | [#4](https://github.com/rob-barlow/ingredient-shopper/issues/4) |
+| T-005 | Database and Flyway, with fixed categories | AI | T-004 | [#5](https://github.com/rob-barlow/ingredient-shopper/issues/5) |
+| T-006 | Frontend skeleton | AI | T-002, T-003 | [#6](https://github.com/rob-barlow/ingredient-shopper/issues/6) |
+| T-007 | API test harness | AI | T-004 | [#7](https://github.com/rob-barlow/ingredient-shopper/issues/7) |
+| T-008 | CI workflow | AI | T-004, T-006, T-007 | [#8](https://github.com/rob-barlow/ingredient-shopper/issues/8) |
+| T-009 | GitHub project board, labels, milestones and issues | AI | — *(done first)* | [#9](https://github.com/rob-barlow/ingredient-shopper/issues/9) |
+| T-010 | Protect `main` | **Rob** | T-008 | [#10](https://github.com/rob-barlow/ingredient-shopper/issues/10) |
 
 *The Issue column is filled in when T-009 creates the issues. From then on, the **issue** is the live status (plan §13).*
 
@@ -109,7 +109,7 @@ Each task follows Article XII: one branch, one PR, CI must pass, and only Rob me
 **Done when:** all three jobs pass on this PR, and deliberately breaking a test makes CI fail (demonstrated, then reverted).
 
 ### T-009 · GitHub project board, labels, milestones and issues
-**Owner:** AI (using `gh`, with Rob's confirmation before creating anything)
+**Owner:** AI (using `gh`, with Rob's confirmation before creating anything) · **Done first**, so every later PR can close its issue
 - **Labels:** `owner:ai`, `owner:rob`, `spec:000`–`spec:006`, `type:setup`, `type:feature`, `type:test`.
 - **Milestones:** "Setup", "004 Admin inventory", "001 Browse", "002 Basket", "003 Place order", "005 Admin orders", "006 Recipe import".
 - A **Projects board** with the columns To do, In progress, In review, Done.
@@ -132,9 +132,9 @@ Each task follows Article XII: one branch, one PR, CI must pass, and only Rob me
 
 ```mermaid
 flowchart LR
-    T1[T-001 Housekeeping] --> T2[T-002 Versions + setup guide]
+    T9[T-009 GitHub board · first] --> T1[T-001 Housekeeping]
+    T1 --> T2[T-002 Versions + setup guide]
     T1 --> T3[T-003 Contract]
-    T1 --> T9[T-009 GitHub board]
     T2 --> T4[T-004 Backend]
     T3 --> T4
     T2 --> T6[T-006 Frontend]
