@@ -1,24 +1,40 @@
 # Constitution: Ingredient Shopper
 
-> **Status:** ✅ Agreed (2026-09-23)
-> **Last updated:** 2026-09-23
+> **Status:** ✅ Agreed (2026-09-23), Amendment 1 agreed (2026-09-24)
+> **Last updated:** 2026-09-24
 
-Project-wide **engineering** rules. Every feature's `plan.md` must follow them. If a plan needs to break one, change this document first, deliberately.
+Project-wide **engineering** rules. Every `plan.md` must follow them. If a plan needs to break one, change this document first, deliberately.
 
 Product rules (users, behaviour, principles) live in [`specs/000-overview/spec.md`](specs/000-overview/spec.md), not here.
 
 ---
 
+## Architecture roadmap
+
+The architecture evolves in **stages**. Each stage is a learning exercise. The product (specs 000–006) is the **same** in every stage.
+
+| Stage | Architecture | Built by | Timebox |
+|---|---|---|---|
+| **1** | **Layered monolith**: one backend, organised by technical layer, with one database | **AI** | about a month (Article VIII) |
+| **2** | **Modular monolith**: the same backend, reorganised by business area, each module owning its data | **Rob** | none |
+| **3** | **Services**: modules extracted one at a time into separate services, in the **same language** as the monolith | **Rob** | none |
+| **4** | **Infrastructure**: containers, orchestration, proxies, queues | **Rob** | none |
+| **5** | **Polyglot rewrite**: services rewritten one at a time in **new languages**, against the same contracts | **Rob** | none |
+
+Each stage after 1 gets its own plan and tasks, and its decisions supersede earlier ones through decision records (ADRs).
+
+---
+
 ## Articles
 
-### I. Microservices
-The system is built as a set of **independent services**, each owning one business area and **its own data**. A service never reads another service's data directly. It asks that service through its public interface.
+### I. Architecture by stage *(amended)*
+The system follows the roadmap above. **Stage 1** is a **single backend application**, organised by **technical layer** (e.g. controllers, services, repositories), using **one database**. This layered structure is **deliberate**: reorganising it is Stage 2's learning exercise. The code must still be clean, readable and well tested. It just shouldn't be pre-organised into business modules.
 
-### II. Polyglot by design
-This is a learning project. **Each service uses a different language and framework**, picked to teach something new. Each service's `plan.md` records the choice and what it is meant to teach.
+### II. Polyglot by design *(amended)*
+This is a learning project. In Stage 1, the **backend** and **frontend** use different languages. In Stage 5, **each service** is rewritten in a **new** language, picked to teach something new. Stage 3 deliberately keeps the monolith's language, so that extracting services and changing languages are learned separately. Each plan records its choices and what they're meant to teach.
 
-### III. Contract-first
-Because services are written in different languages, they agree through **language-neutral API contracts** (e.g. OpenAPI), not shared code. A service's contract is written and agreed **before** its implementation. No shared libraries between services.
+### III. Contract-first *(amended)*
+The backend's HTTP API is described by a **language-neutral contract** (OpenAPI), written and agreed **before** it is implemented. The frontend relies only on the contract. It shares no code with the backend, although generating types *from* the contract is allowed. In Stage 3, each extracted service gets its own contract in the same way.
 
 ### IIIa. API versioning
 Every contract is versioned, and changes follow these rules:
@@ -28,35 +44,51 @@ Every contract is versioned, and changes follow these rules:
 - Each contract keeps a short **changelog**.
 
 ### IV. Runnable from the command line
-Every service starts with a single documented command on a developer machine. No containers, orchestration, reverse proxies or message brokers are **required** to run the MVP.
+Every runnable part (in Stage 1, the backend and the frontend) starts with a single documented command on a developer machine. No containers, orchestration, reverse proxies or message brokers are **required**.
 
 ### V. Infrastructure-ready, not infrastructure-built
-The owner will add Docker, Kubernetes, queues, nginx and similar later, **by hand, as a separate learning exercise**. To make that possible without code changes:
-- Service addresses, ports and credentials come from **configuration** (e.g. environment variables), never hard-coded.
-- Each service is **stateless** apart from its own data store, so it could run as multiple copies.
-- Each service exposes a **health check**.
-- Services communicate over **standard network protocols** only, never shared memory or shared files.
+The owner will add infrastructure by hand in Stage 4. To make that possible without code changes:
+- Addresses, ports and credentials come from **configuration** (e.g. environment variables), never hard-coded.
+- Every runnable part is **stateless** apart from its database, so it could run as multiple copies.
+- Every runnable part exposes a **health check**.
+- Parts communicate over **standard network protocols** only, never shared memory or shared files.
 
 ### VI. Networking is invisible to the product
-Nothing a customer or admin sees may depend on how services are deployed or connected. Deployment changes must never require a spec change.
+Nothing a customer or admin sees may depend on how the system is deployed or connected. Architecture and deployment changes must never require a spec change.
 
 ### VII. One store frontend
-There is a **single web frontend** for customers and admins. It talks to the services only through their contracts (Article III). A future external identity provider (OIDC) may host its own login pages. That does not count as a second store frontend.
+There is a **single web frontend** for customers and admins. It talks to the backend only through the contract (Article III). A future external identity provider (OIDC) may host its own login pages. That does not count as a second store frontend.
 
 ### VIII. Respect the timebox
-The MVP should fit into **about a month** (see 000 §1). So:
-- Keep the **number of services small**. Split by business area, not by technical layer.
+**Stage 1** (the AI-built MVP) should fit into **about a month** (000 §1). So:
 - Learning happens in the *language and framework* choices, not in extra moving parts.
 - Don't build infrastructure the MVP doesn't need (see V).
 
-### IX. Testing
+Stages 2–5 are the owner's own learning and have no timebox.
+
+### IX. Testing *(amended)*
 - **Unit tests are mandatory.** Every task that adds or changes behaviour includes unit tests for it, and a task isn't done until they pass.
-- Tests are traceable: acceptance criteria in a `spec.md` should map to tests that prove them.
-- **Contract tests (recommended):** each service checks that its real responses match its published contract, to catch drift between contract and code.
-- **End-to-end tests are out of scope for now.**
+- **API-level tests are mandatory.** Every acceptance criterion that can be observed through the API has a test that calls the **real HTTP API** and checks the response. These tests **must not depend on internal structure**, so they keep passing through Stages 2, 3 and 5. They are the refactoring safety net.
+- Tests are traceable: each test names the acceptance criterion it proves (e.g. `004 AC-28`).
+- **Contract tests (recommended):** the backend checks that its real responses match the published contract.
+- **Browser-driven end-to-end tests are out of scope for now** *(backlog)*.
 
 ### X. Spec first
-No code is written for a feature until its `spec.md` is **Agreed** and its `plan.md` and `tasks.md` exist. When the implementation reveals the spec is wrong, update the spec, then the code.
+No code is written until the relevant `spec.md` is **Agreed** and a `plan.md` and `tasks.md` exist. This applies to the owner's Stage 2–5 work too. When the implementation reveals a spec is wrong, update the spec, then the code.
+
+### XI. Task ownership *(new)*
+Every task in a `tasks.md` has an **owner**: `AI` or `Rob`.
+- **AI-owned tasks:** the AI writes the code and tests, following the plan.
+- **Rob-owned tasks:** the AI **explains, reviews and answers questions**, and helps write the plan and tasks. It **doesn't write the code**, unless Rob explicitly asks for a specific piece.
+- In GitHub, ownership is shown with the labels `owner:ai` and `owner:rob`.
+
+---
+
+## Amendments
+
+| # | Date | Change |
+|---|---|---|
+| 1 | 2026-09-24 | Staged architecture (layered monolith first). Articles I, II, III, IV, V, VIII, IX amended; Article XI added; roadmap added. |
 
 ---
 

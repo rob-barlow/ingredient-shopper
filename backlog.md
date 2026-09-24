@@ -23,6 +23,10 @@ Everything **not** in the v1 MVP (000 §6) that we might want later. This is a l
 | Separate checkout page | Nice to have | 🟢 | 003 |
 | Warn the guest when prices changed since they loaded the basket | Nice to have | 🟢 | 003 |
 | Admin can cancel an order and return its stock. *Revisit 005's "any status to any status" rule when doing this.* | Feature | 🟢 | 005 |
-| End-to-end tests | Engineering | 🟢 | Constitution IX |
+| **Stage 2:** modularise the monolith (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
+| **Stage 3:** extract services, same language (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
+| **Stage 4:** infrastructure: Docker, Kubernetes, nginx, queues (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
+| **Stage 5:** rewrite services in new languages (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
+| Browser-driven end-to-end tests | Engineering | 🟢 | Constitution IX |
 
 *When an item is picked up, give it a spec folder and move it out of this list.*
