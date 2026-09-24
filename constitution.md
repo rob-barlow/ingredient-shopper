@@ -82,6 +82,14 @@ Every task in a `tasks.md` has an **owner**: `AI` or `Rob`.
 - **Rob-owned tasks:** the AI **explains, reviews and answers questions**, and helps write the plan and tasks. It **doesn't write the code**, unless Rob explicitly asks for a specific piece.
 - In GitHub, ownership is shown with the labels `owner:ai` and `owner:rob`.
 
+### XII. One task, one branch, one PR *(new)*
+- Every task is done on its **own branch**, named `t-NNN-short-name` (e.g. `t-021-product-list`), and delivered as **one pull request**.
+- The PR says which task and acceptance criteria it implements, and closes its issue (`Closes #12`).
+- **CI must pass** before a PR can be merged. `main` is protected: no direct pushes.
+- **Only Rob merges.** The AI may create branches, commit, push its task branches and open PRs, but it **never merges** and **never pushes to `main`**.
+- Rob reviews AI PRs, and the AI reviews Rob's PRs.
+- Spec, plan and constitution changes go through PRs too.
+
 ---
 
 ## Amendments
@@ -89,6 +97,7 @@ Every task in a `tasks.md` has an **owner**: `AI` or `Rob`.
 | # | Date | Change |
 |---|---|---|
 | 1 | 2026-09-24 | Staged architecture (layered monolith first). Articles I, II, III, IV, V, VIII, IX amended; Article XI added; roadmap added. |
+| 2 | 2026-09-24 | Article XII added: branch and PR per task, CI required, only Rob merges. |
 
 ---
 

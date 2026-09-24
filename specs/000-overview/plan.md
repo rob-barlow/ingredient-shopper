@@ -1,6 +1,6 @@
 # 000 — Architecture Plan (Stage 1)
 
-> **Status:** ✅ Agreed (2026-09-24)
+> **Status:** ✅ Agreed (2026-09-24), Amendment 1 (CI) 2026-09-24
 > **Stage:** 1, layered monolith (constitution roadmap)
 > **Implements:** specs 000–006
 > **Last updated:** 2026-09-24
@@ -294,6 +294,17 @@ A `.env.example` documents these. **Real secrets are never committed.**
 | **API-level** | `api-tests/` | **Black-box**: only calls `BASE_URL` over HTTP. It sets up data **through the API** (e.g. creates products as admin), never through the database. Each test is named after its AC (e.g. `ac004_28_adjustmentDoesNotUndoConcurrentSale`). **Contract validation** is built in: every response is checked against `openapi.yaml`. | Against a running backend and a test database |
 | **AI evaluation** | `eval/` | The 006 §4 example recipes, run against the **real** Claude API, comparing proposals with the expected lines | **Manually** (it costs money) |
 
+### Continuous integration *(Amendment 1, 2026-09-24)*
+A **GitHub Actions** workflow runs on every PR and every push to `main`:
+
+| Job | Steps |
+|---|---|
+| `backend` | Build (including code generation from the contract) and run unit tests |
+| `frontend` | Build (including NSwag client generation) and run bUnit tests |
+| `api-tests` | Start **PostgreSQL** (a GitHub Actions *service container*), start the backend with `SEED_DEMO_DATA=true`, then run `api-tests` against it |
+
+All three must pass before a PR can merge (Article XII). The AI evaluation (`eval/`) **isn't** run in CI, because it calls the paid Claude API. *(The service container is only for CI. Running the app locally still needs no containers, per Article IV.)*
+
 **Why API tests set up data through the API:** in Stages 2 and 3 the database gets split up and restructured. Tests that insert rows directly would break, while tests that only use the API keep working, which is exactly the safety net Article IX asks for. In Stage 3, `BASE_URL` points at whatever sits in front of the services, and the **same tests** run unchanged.
 
 **Recipe pages for the evaluation** are **saved as local HTML files** in `eval/`, so results don't change when a live site does. The fetcher is pointed at a local file server for those runs.
@@ -323,6 +334,7 @@ A `.env.example` documents these. **Real secrets are never committed.**
 | **015** | **Maven** | Gradle | The most common choice in Spring guides and tutorials, so it's easier while learning |
 | **016** | **Black-box `api-tests` project** | `@SpringBootTest` inside the backend | Independent of the backend's code and structure, so it survives Stages 2–5 unchanged |
 | **017** | **Seed data is dev-only**: a separate Flyway location (`db/seed`), loaded only when `SEED_DEMO_DATA=true` | Seed as a normal migration | The schema is needed everywhere, but demo stock isn't. Demos and API tests switch it on |
+| **018** | **GitHub Actions CI**, required on every PR *(Amendment 1)* | No CI; another CI service | Catches broken builds before merge. Free for public repos. It lives next to the Issues and PRs |
 
 ---
 
