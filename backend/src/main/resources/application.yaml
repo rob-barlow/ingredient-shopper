@@ -1,0 +1,47 @@
+# Ingredient Shopper backend configuration.
+# Every value that differs between environments comes from an environment variable (Article V, plan §9).
+# Locally, those are read from the repo-root `.env` file. Real environment variables always win over it.
+
+spring:
+  application:
+    name: shopper
+
+  # Local development: load ../.env (repo root, when run from backend/) or ./.env.
+  # It is read as a .properties file, so values must NOT be quoted.
+  config:
+    import:
+      - optional:file:../.env[.properties]
+      - optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    open-in-view: false        # no lazy loading during HTTP rendering: data access stays in services
+    hibernate:
+      ddl-auto: validate       # Flyway owns the schema (ADR-004). Hibernate only checks it matches
+
+  flyway:
+    locations: classpath:db/migration   # T-005 adds the dev-only seed location (ADR-017)
+
+  mvc:
+    problemdetails:
+      enabled: true            # Spring's own errors use RFC 9457 Problem Details (plan §6)
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health        # only the health check is exposed (Article V)
+  endpoint:
+    health:
+      show-details: never      # just {"status":"UP"}: don't leak internals publicly
+
+shopper:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5000}

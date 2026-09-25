@@ -145,7 +145,9 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 
 > ⚠️ **Never commit `.env`.** It's git-ignored, and `git status` should never list it.
 >
-> *How the backend reads `.env`, and so whether the bcrypt value needs quotes, is settled in **T-004**, which will update this section and `.env.example` if needed.*
+> **No quotes around values.** The backend reads `.env` as a `.properties` file, where quotes become *part of the value*. Paste the bcrypt hash exactly as printed (it starts with `$2b$`).
+>
+> **Real environment variables win over `.env`.** For example, `$env:SERVER_PORT="8081"` before starting the backend overrides the port for that terminal.
 
 ---
 
@@ -167,10 +169,24 @@ If all five work, you're ready.
 
 ## Running the app
 
-*Added as the pieces exist:*
-- **Backend:** T-004
-- **Frontend:** T-006
-- **API tests:** T-007
+### Backend
+
+From `backend/`, in PowerShell:
+
+```powershell
+.\mvnw.cmd spring-boot:run      # starts on SERVER_PORT (default 8080)
+.\mvnw.cmd verify               # build + generate from the contract + unit tests
+```
+
+Check it's up: open <http://localhost:8080/actuator/health> and you should see `"status":"UP"`. That includes the database check.
+
+- The first build downloads Maven and all dependencies, so it takes a few minutes. Later builds are fast.
+- The API interfaces are **generated** from `contracts/openapi.yaml` into `backend/target/generated-sources/openapi` on every build. Never edit them.
+- Use `mvnw.cmd` from PowerShell. The `./mvnw` script (for Git Bash, macOS and Linux) downloads Maven with `curl`, which can hit the certificate problems below on Windows.
+
+### Frontend · API tests
+
+*Added by T-006 and T-007.*
 
 ---
 
@@ -183,3 +199,6 @@ If all five work, you're ready.
 | `psql: password authentication failed` | You're using the wrong user's password. `postgres` and `shopper` have different ones |
 | Port 5432 is already in use | Another PostgreSQL is running. Stop it, or use another port and update `DB_URL` in `.env` |
 | `curl` fails with `CRYPT_E_NO_REVOCATION_CHECK` | A Windows `curl` quirk. Add `--ssl-no-revoke` |
+| **Maven/Java fails with `PKIX path building failed`** | Your network inspects HTTPS and re-signs it with its own certificate (common on company networks). Windows trusts that certificate, but Java uses its own list. Tell Java to use the Windows list, **on your machine only** (never commit this): `[Environment]::SetEnvironmentVariable("JAVA_TOOL_OPTIONS", "-Djavax.net.ssl.trustStoreType=Windows-ROOT", "User")`, then open a new terminal. This covers both Maven's downloads and the running app's outbound calls (e.g. the Claude API in 006). Java will print "Picked up JAVA_TOOL_OPTIONS…" at startup, which is harmless |
+| **`npx` fails with a certificate error** | The same cause. `$env:NODE_OPTIONS="--use-system-ca"` (or set it as a User variable like the line above) |
+| **Port 8080 is already in use** (health check gives a 404, or the backend fails to start) | Another program is on 8080. Find it with `Get-NetTCPConnection -LocalPort 8080 -State Listen`, or set `SERVER_PORT=8081` in `.env`. If you change it, update the frontend's `ApiBaseUrl` to match (T-006) |

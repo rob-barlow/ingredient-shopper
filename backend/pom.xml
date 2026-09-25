@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Ingredient Shopper backend: Stage 1 layered monolith (constitution Article I).
+  Build:  ./mvnw verify          Run:  ./mvnw spring-boot:run
+  Versions: plan §2. The API interfaces are generated from ../contracts/openapi.yaml (ADR-013).
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.1.1</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.glendas</groupId>
+  <artifactId>shopper</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>shopper</name>
+  <description>Ingredient Shopper backend</description>
+
+  <properties>
+    <java.version>25</java.version>
+    <openapi-generator.version>7.25.0</openapi-generator.version>
+    <contract.file>${project.basedir}/../contracts/openapi.yaml</contract.file>
+  </properties>
+
+  <dependencies>
+    <!-- HTTP API -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <!-- Health checks (Article V) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- Database: JPA + Flyway migrations + PostgreSQL (ADR-004) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-flyway</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Tests: JUnit 5, Mockito, AssertJ come with these starters -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <!--
+        Contract-first (Article III, ADR-013): generate Spring *interfaces* and model classes
+        from the contract on every build. Controllers in `controller/` implement these
+        interfaces, so if the code drifts from the contract, it stops compiling.
+        Output: target/generated-sources/openapi (never committed, never edited).
+      -->
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator.version}</version>
+        <executions>
+          <execution>
+            <id>generate-api</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${contract.file}</inputSpec>
+              <generatorName>spring</generatorName>
+              <apiPackage>com.glendas.shopper.api</apiPackage>
+              <modelPackage>com.glendas.shopper.api.model</modelPackage>
+              <generateSupportingFiles>false</generateSupportingFiles>
+              <generateApiTests>false</generateApiTests>
+              <generateModelTests>false</generateModelTests>
+              <generateApiDocumentation>false</generateApiDocumentation>
+              <generateModelDocumentation>false</generateModelDocumentation>
+              <configOptions>
+                <interfaceOnly>true</interfaceOnly>             <!-- interfaces only: we write the controllers -->
+                <skipDefaultInterface>true</skipDefaultInterface> <!-- no "501 Not Implemented" defaults: forgetting a method won't compile -->
+                <useTags>true</useTags>                         <!-- one interface per contract tag, e.g. ProductsApi -->
+                <useSpringBoot4>true</useSpringBoot4>
+                <useJackson3>true</useJackson3>
+                <useBeanValidation>true</useBeanValidation>     <!-- contract rules become @NotNull, @Size etc. -->
+                <useResponseEntity>true</useResponseEntity>
+                <openApiNullable>false</openApiNullable>        <!-- avoids an extra runtime library -->
+                <generateJsonIncludeAnnotations>true</generateJsonIncludeAnnotations>         <!-- omit unset optional fields: the contract doesn't allow null -->
+                <generateJsonSetterNullsAnnotations>false</generateJsonSetterNullsAnnotations> <!-- incoming nulls handled by bean validation instead -->
+                <annotationLibrary>none</annotationLibrary>     <!-- the contract is the documentation -->
+                <documentationProvider>none</documentationProvider>
+              </configOptions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
