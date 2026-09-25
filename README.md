@@ -37,6 +37,7 @@ Follow **[docs/local-setup.md](docs/local-setup.md)** to install Java 25, .NET 1
 ```powershell
 cd backend; .\mvnw.cmd spring-boot:run          # backend  → http://localhost:8081/actuator/health
 cd frontend/Shopper.Web; dotnet run              # frontend → http://localhost:5000
+cd api-tests; .\mvnw.cmd test                   # API tests (backend must be running)
 ```
 
 ## How work happens
