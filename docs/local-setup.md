@@ -205,7 +205,18 @@ dotnet test         # builds everything (including the generated API client) and
 
 ### API tests
 
-*Added by T-007.*
+Black-box tests that call the **running** backend over HTTP and check every response against the contract (see [api-tests/README.md](../api-tests/README.md)). Start the backend first, then from `api-tests/`:
+
+```powershell
+.\mvnw.cmd test                                     # against http://localhost:8081
+.\mvnw.cmd test "-DBASE_URL=http://localhost:9000"    # against another address
+```
+
+*Tip:* API tests create lots of data. Point the backend at the `shopper_test` database while running them, so your `shopper` database stays tidy for trying the app by hand:
+
+```powershell
+$env:DB_URL = "jdbc:postgresql://localhost:5432/shopper_test"; cd backend; .\mvnw.cmd spring-boot:run
+```
 
 ---
 

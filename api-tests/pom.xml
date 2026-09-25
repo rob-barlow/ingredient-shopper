@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Black-box API tests (constitution Article IX, plan §10, ADR-016).
+
+  These tests know NOTHING about the backend's code: no Spring, no imports from backend/.
+  They only send HTTP requests to BASE_URL and check the responses, and every response is
+  validated against ../contracts/openapi.yaml. That's why they keep working through the
+  Stage 2, 3 and 5 refactors.
+
+  Run against a running backend:
+    .\mvnw.cmd test                                   (BASE_URL defaults to http://localhost:8081)
+    .\mvnw.cmd test -DBASE_URL=http://localhost:9000
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.glendas</groupId>
+  <artifactId>shopper-api-tests</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>shopper-api-tests</name>
+  <description>Black-box API tests for Ingredient Shopper</description>
+
+  <properties>
+    <maven.compiler.release>25</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <junit.version>6.1.3</junit.version>
+    <rest-assured.version>6.0.1</rest-assured.version>
+    <assertj.version>3.27.7</assertj.version>
+    <openapi-validator.version>3.0.0</openapi-validator.version>
+    <surefire.version>3.6.0</surefire.version>
+
+    <!-- Overridable on the command line: -DBASE_URL=... -->
+    <BASE_URL>http://localhost:8081</BASE_URL>
+    <CONTRACT_FILE>${project.basedir}/../contracts/openapi.yaml</CONTRACT_FILE>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Fluent HTTP testing: given().when().get(...).then()... -->
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <version>${rest-assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Checks every request and response against the OpenAPI contract -->
+    <dependency>
+      <groupId>com.atlassian.oai</groupId>
+      <artifactId>swagger-request-validator-restassured</artifactId>
+      <version>${openapi-validator.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <systemPropertyVariables>
+            <BASE_URL>${BASE_URL}</BASE_URL>
+            <CONTRACT_FILE>${CONTRACT_FILE}</CONTRACT_FILE>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
