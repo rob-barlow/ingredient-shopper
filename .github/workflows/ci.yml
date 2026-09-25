@@ -1,0 +1,137 @@
+# Continuous integration (plan §10, ADR-018, constitution Article XII).
+# Runs on every pull request and every push to main. All four jobs must pass before a PR can merge.
+#
+#   contract   lint contracts/openapi.yaml
+#   backend    build (including code generated from the contract) + unit tests
+#   frontend   build (including the NSwag client) + xUnit/bUnit tests
+#   api-tests  PostgreSQL + the real backend, then the black-box API tests against it
+#
+# The AI evaluation (eval/, feature 006) is deliberately NOT run here: it calls the paid Claude API.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push to the same PR cancels the older, now-pointless run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+      - name: Lint the OpenAPI contract
+        run: npx --yes @redocly/cli@2.54.3 lint --config contracts/redocly.yaml contracts/openapi.yaml
+
+  backend:
+    name: backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build and unit test
+        run: ./mvnw -B -ntp verify
+
+  frontend:
+    name: frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build and test
+        run: dotnet test Shopper.slnx --nologo
+
+  api-tests:
+    name: api-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # A throwaway PostgreSQL just for this job (a "service container"). Containers are only used
+    # in CI. Running the app locally still needs none (constitution Article IV).
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: shopper
+          POSTGRES_PASSWORD: ci-only-password   # not a secret: this database exists for one CI run
+          POSTGRES_DB: shopper_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U shopper -d shopper_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    # The backend's configuration, as environment variables (plan §9, Article V).
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/shopper_test
+      DB_USER: shopper
+      DB_PASSWORD: ci-only-password
+      SERVER_PORT: '8081'
+      SEED_DEMO_DATA: 'true'
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Build the backend
+        working-directory: backend
+        run: ./mvnw -B -ntp package -DskipTests
+
+      - name: Start the backend
+        working-directory: backend
+        run: nohup java -jar target/shopper-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
+
+      - name: Wait until healthy
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8081/actuator/health; then echo; echo "Backend is up"; exit 0; fi
+            sleep 2
+          done
+          echo "Backend did not become healthy in time"; cat backend/backend.log; exit 1
+
+      - name: Run the API tests
+        working-directory: api-tests
+        run: ./mvnw -B -ntp test -DBASE_URL=http://localhost:8081
+
+      - name: Keep logs if anything failed
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-tests-logs
+          path: |
+            backend/backend.log
+            api-tests/target/surefire-reports/
+          retention-days: 7
