@@ -72,9 +72,11 @@ ingredient-shopper/
 │       └── seed/              ← Flyway: demo catalogue (dev only, ADR-017)
 ├── api-tests/                 ← black-box API tests (Maven, separate project)
 ├── eval/                      ← 006 evaluation recipes + runner
-└── frontend/                  ← Blazor WebAssembly app
-    ├── Pages/  Components/  Services/
-    └── Api/                   ← generated client (from contracts/openapi.yaml)
+└── frontend/                  ← Shopper.slnx
+    ├── Shopper.Web/           ← Blazor WebAssembly app
+    │   ├── Pages/  Layout/  Services/
+    │   └── Api/Generated/     ← generated client (from contracts/openapi.yaml, git-ignored)
+    └── Shopper.Web.Tests/     ← xUnit + bUnit
 ```
 
 **Packages are organised by technical layer**, as Article I requires. `service/` contains `ProductService`, `BasketService`, `OrderService` and so on side by side. Reorganising these into business modules is Rob's Stage 2 exercise, so this plan deliberately doesn't do it.

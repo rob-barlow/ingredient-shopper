@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Shopper.Web.Tests/Shopper.Web.Tests.csproj" />
+  <Project Path="Shopper.Web/Shopper.Web.csproj" />
+</Solution>

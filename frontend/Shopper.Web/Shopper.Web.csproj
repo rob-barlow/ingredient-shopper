@@ -1,0 +1,52 @@
+<!--
+  Ingredient Shopper frontend: Blazor WebAssembly, standalone (ADR-003).
+  Run (from frontend/Shopper.Web):  dotnet run     (http://localhost:5000)
+-->
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+
+    <ContractFile>$(MSBuildProjectDirectory)\..\..\contracts\openapi.yaml</ContractFile>
+    <ApiClientFile>$(MSBuildProjectDirectory)\Api\Generated\ShopperApiClient.g.cs</ApiClientFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.10" PrivateAssets="all" />
+    <!-- Build-time only: runs NSwag to generate the API client (ADR-014) -->
+    <PackageReference Include="NSwag.MSBuild" Version="14.7.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <!--
+    Contract-first (Article III, ADR-014): before compiling, NSwag reads the contract and writes a
+    typed C# client, ShopperApiClient and IShopperApiClient, plus model classes, into Api/Generated/.
+    That folder is git-ignored and never edited. If the contract changes, code using the client
+    stops compiling until it's updated.
+
+    Inputs/Outputs make this incremental: it only regenerates when openapi.yaml is newer.
+      useBaseUrl:false          use HttpClient.BaseAddress, which comes from ApiBaseUrl config
+      generateClientInterfaces  also generate IShopperApiClient, so components can be tested with fakes
+      jsonLibrary               System.Text.Json (built in), not Newtonsoft
+  -->
+  <Target Name="GenerateApiClient" BeforeTargets="BeforeBuild" Inputs="$(ContractFile)" Outputs="$(ApiClientFile)">
+    <Exec Command="$(NSwagExe_Net100) openapi2csclient /input:&quot;$(ContractFile)&quot; /output:&quot;$(ApiClientFile)&quot; /namespace:Shopper.Web.Api /className:ShopperApiClient /useBaseUrl:false /generateClientInterfaces:true /jsonLibrary:SystemTextJson /generateExceptionClasses:true /exceptionClass:ApiException" />
+  </Target>
+
+  <!--
+    Compile the generated file exactly once. It's excluded from the automatic "*.cs" rule, because on a
+    clean checkout it doesn't exist yet when the project is read, and it's added back after generation.
+  -->
+  <ItemGroup>
+    <Compile Remove="Api\Generated\**" />
+  </ItemGroup>
+  <Target Name="IncludeApiClient" AfterTargets="GenerateApiClient" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Compile Include="$(ApiClientFile)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
