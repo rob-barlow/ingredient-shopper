@@ -6,7 +6,7 @@ namespace Shopper.Web.Tests.Services;
 public class MoneyTests
 {
     [Theory]
-    [InlineData(120, "£1.21")]   // DEMO: deliberately wrong, to prove CI fails. Reverted in the next commit.
+    [InlineData(120, "£1.20")]
     [InlineData(5, "£0.05")]
     [InlineData(0, "£0.00")]
     [InlineData(100, "£1.00")]
