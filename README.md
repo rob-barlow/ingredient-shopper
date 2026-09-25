@@ -32,7 +32,13 @@ It's a learning and portfolio project, built with **spec-driven development (SDD
 
 ## Running locally
 
-Follow **[docs/local-setup.md](docs/local-setup.md)** to install Java 25, .NET 10 and PostgreSQL 18, create the databases and fill in `.env`. Then start the backend and the frontend with one command each (added in T-004 and T-006).
+Follow **[docs/local-setup.md](docs/local-setup.md)** to install Java 25, .NET 10 and PostgreSQL 18, create the databases and fill in `.env`. Then:
+
+```powershell
+cd backend; .\mvnw.cmd spring-boot:run     # backend → http://localhost:8080/actuator/health
+```
+
+The frontend command arrives with T-006.
 
 ## How work happens
 
