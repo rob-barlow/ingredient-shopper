@@ -35,10 +35,9 @@ It's a learning and portfolio project, built with **spec-driven development (SDD
 Follow **[docs/local-setup.md](docs/local-setup.md)** to install Java 25, .NET 10 and PostgreSQL 18, create the databases and fill in `.env`. Then:
 
 ```powershell
-cd backend; .\mvnw.cmd spring-boot:run     # backend → http://localhost:8081/actuator/health
+cd backend; .\mvnw.cmd spring-boot:run          # backend  → http://localhost:8081/actuator/health
+cd frontend/Shopper.Web; dotnet run              # frontend → http://localhost:5000
 ```
-
-The frontend command arrives with T-006.
 
 ## How work happens
 

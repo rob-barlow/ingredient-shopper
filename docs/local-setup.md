@@ -184,9 +184,28 @@ Check it's up: open <http://localhost:8081/actuator/health> and you should see `
 - The API interfaces are **generated** from `contracts/openapi.yaml` into `backend/target/generated-sources/openapi` on every build. Never edit them.
 - Use `mvnw.cmd` from PowerShell. The `./mvnw` script (for Git Bash, macOS and Linux) downloads Maven with `curl`, which can hit the certificate problems below on Windows.
 
-### Frontend · API tests
+### Frontend
 
-*Added by T-006 and T-007.*
+From `frontend/Shopper.Web`:
+
+```powershell
+dotnet run          # serves on http://localhost:5000 and opens a browser
+```
+
+From `frontend/`:
+
+```powershell
+dotnet test         # builds everything (including the generated API client) and runs the tests
+```
+
+- The backend address comes from **`frontend/Shopper.Web/wwwroot/appsettings.json`** (`ApiBaseUrl`, default `http://localhost:8081`).
+- ⚠️ That file is **downloaded by the browser**, so anyone can read it. **Never put secrets in it.**
+- The typed API client is **generated** from `contracts/openapi.yaml` into `frontend/Shopper.Web/Api/Generated/` before each build (NSwag, ADR-014). It's git-ignored and never edited. It only regenerates when the contract changes.
+- The backend only accepts browser calls from `CORS_ALLOWED_ORIGINS` (default `http://localhost:5000`). If you serve the frontend on another port, update that in `.env`.
+
+### API tests
+
+*Added by T-007.*
 
 ---
 
