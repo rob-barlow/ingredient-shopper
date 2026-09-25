@@ -1,7 +1,7 @@
 # Constitution: Ingredient Shopper
 
-> **Status:** ✅ Agreed (2026-09-23), Amendment 1 agreed (2026-09-24)
-> **Last updated:** 2026-09-24
+> **Status:** ✅ Agreed (2026-09-23), amendments listed below
+> **Last updated:** 2026-09-25
 
 Project-wide **engineering** rules. Every `plan.md` must follow them. If a plan needs to break one, change this document first, deliberately.
 
@@ -18,10 +18,13 @@ The architecture evolves in **stages**. Each stage is a learning exercise. The p
 | **1** | **Layered monolith**: one backend, organised by technical layer, with one database | **AI** | about a month (Article VIII) |
 | **2** | **Modular monolith**: the same backend, reorganised by business area, each module owning its data | **Rob** | none |
 | **3** | **Services**: modules extracted one at a time into separate services, in the **same language** as the monolith | **Rob** | none |
-| **4** | **Infrastructure**: containers, orchestration, proxies, queues | **Rob** | none |
+| **4a** | **Local infrastructure**: containers, Compose, reverse proxy / load balancer, queues | **Rob** | none |
+| **4b** | **Cloud deployment**: provider to be decided (e.g. AWS, Azure, Cloudflare) | **Rob** | none |
 | **5** | **Polyglot rewrite**: services rewritten one at a time in **new languages**, against the same contracts | **Rob** | none |
 
 Each stage after 1 gets its own plan and tasks, and its decisions supersede earlier ones through decision records (ADRs).
+
+**Stages 4a and 4b don't have to wait for Stages 2 and 3.** The Stage 1 monolith can be containerised and deployed as soon as it works, and the architecture can then evolve while it runs. 4a comes before 4b, because most cloud platforms run containers.
 
 ---
 
@@ -47,7 +50,7 @@ Every contract is versioned, and changes follow these rules:
 Every runnable part (in Stage 1, the backend and the frontend) starts with a single documented command on a developer machine. No containers, orchestration, reverse proxies or message brokers are **required**.
 
 ### V. Infrastructure-ready, not infrastructure-built
-The owner will add infrastructure by hand in Stage 4. To make that possible without code changes:
+The owner will add infrastructure by hand in Stages 4a and 4b. To make that possible without code changes, or changes for a particular cloud provider:
 - Addresses, ports and credentials come from **configuration** (e.g. environment variables), never hard-coded.
 - Every runnable part is **stateless** apart from its database, so it could run as multiple copies.
 - Every runnable part exposes a **health check**.
@@ -98,6 +101,7 @@ Every task in a `tasks.md` has an **owner**: `AI` or `Rob`.
 |---|---|---|
 | 1 | 2026-09-24 | Staged architecture (layered monolith first). Articles I, II, III, IV, V, VIII, IX amended; Article XI added; roadmap added. |
 | 2 | 2026-09-24 | Article XII added: branch and PR per task, CI required, only Rob merges. |
+| 3 | 2026-09-25 | Stage 4 split into 4a (local infrastructure) and 4b (cloud deployment, provider undecided). Stages 4a/4b may start before Stages 2 and 3. Article V wording updated. |
 
 ---
 

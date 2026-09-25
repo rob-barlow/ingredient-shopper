@@ -25,8 +25,22 @@ Everything **not** in the v1 MVP (000 §6) that we might want later. This is a l
 | Admin can cancel an order and return its stock. *Revisit 005's "any status to any status" rule when doing this.* | Feature | 🟢 | 005 |
 | **Stage 2:** modularise the monolith (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
 | **Stage 3:** extract services, same language (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
-| **Stage 4:** infrastructure: Docker, Kubernetes, nginx, queues (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
+| **Stage 4a:** local infrastructure: Docker, Compose, nginx as reverse proxy and load balancer, queues (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
+| **Stage 4b:** cloud deployment, provider undecided (AWS / Azure / Cloudflare). See *Cloud notes* below (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
 | **Stage 5:** rewrite services in new languages (owner: Rob) | Engineering | 🟡 | Constitution roadmap |
 | Browser-driven end-to-end tests | Engineering | 🟢 | Constitution IX |
 
 *When an item is picked up, give it a spec folder and move it out of this list.*
+
+---
+
+## Cloud notes (for Stage 4b)
+
+Decisions to make when Stage 4b starts. Nothing here is decided.
+
+- **Provider:** AWS, Azure or Cloudflare. Check each one's *current* free tier and credit terms for your account first (AWS changed its free tier in July 2025).
+- **Cost safety, on day one:** budget alerts (e.g. at $1 and $10), free-tier usage alerts, and tearing down after each session. Infrastructure as code (Terraform, or the provider's own tool) makes teardown one command.
+- **Common surprise costs:** managed load balancers, NAT gateways, public IPv4 addresses, resources forgotten in another region, and outbound data.
+- **Cheap learning shape:** frontend as static files on a CDN; one small VM running Docker Compose with **nginx as the load balancer** in front of two backend copies (proving Article V's statelessness); database in a **private** subnet; backend in a public subnet with a tight firewall, so no NAT is needed at all. A self-managed NAT instance is an optional extra exercise.
+- **Security:** keep plan §7's SSRF protection. Cloud metadata endpoints (e.g. `169.254.169.254`) are the classic target. Secrets go in the provider's secret store, never in images or the repo.
+- **Optional:** on AWS, Claude is also available through **Amazon Bedrock**, which would be a small self-contained exercise.
