@@ -16,3 +16,6 @@ Until v1 is first released (the end of Stage 1), endpoints are added under **Unr
 - Contract skeleton (T-003): info, conventions, local server, `bearerAuth` security scheme.
 - Shared `Problem` (RFC 9457) and `FieldError` schemas, and reusable error responses: `BadRequest`, `Unauthorized`, `NotFound`, `Conflict`, `ValidationFailed`.
 - `GET /actuator/health` (operational, unversioned).
+
+### Changed
+- Local development server is now `http://localhost:8081` (was 8080, which is often taken on dev machines).

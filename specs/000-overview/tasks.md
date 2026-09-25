@@ -96,7 +96,7 @@ Each task follows Article XII: one branch, one PR, CI must pass, and only Rob me
 - Naming convention: `acNNN_MM_description`, e.g. `ac004_28_adjustmentDoesNotUndoConcurrentSale`.
 - A first test: `GET /actuator/health` returns `UP`.
 
-**Done when:** `./mvnw test -DBASE_URL=http://localhost:8080` passes against a running backend.
+**Done when:** `./mvnw test -DBASE_URL=http://localhost:8081` passes against a running backend.
 
 ### T-008 · CI workflow
 **Owner:** AI · **Implements:** plan §10 (CI), ADR-018, Article XII

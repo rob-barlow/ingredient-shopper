@@ -333,7 +333,7 @@ All three must pass before a PR can merge (Article XII). The AI evaluation (`eva
 | **014** | **NSwag** for the frontend client | Kiota; handwritten | Simpler output. Compile-time contract checking for the frontend |
 | **015** | **Maven** | Gradle | The most common choice in Spring guides and tutorials, so it's easier while learning |
 | **016** | **Black-box `api-tests` project** | `@SpringBootTest` inside the backend | Independent of the backend's code and structure, so it survives Stages 2–5 unchanged |
-| **017** | **Seed data is dev-only**: a separate Flyway location (`db/seed`), loaded only when `SEED_DEMO_DATA=true` | Seed as a normal migration | The schema is needed everywhere, but demo stock isn't. Demos and API tests switch it on |
+| **017** | **Seed data is dev-only**: a separate Flyway location (`db/seed`), loaded only when `SEED_DEMO_DATA=true`. Seed files are **repeatable** migrations (`R__*.sql`, idempotent upserts) *(detail added in T-005)* | Seed as a normal migration; versioned (`V__`) seed files | The schema is needed everywhere, but demo stock isn't. Repeatable migrations run **after** all versioned ones, so the tables exist, and they share no version numbers with the schema. They re-run when edited, so the demo catalogue can grow |
 | **018** | **GitHub Actions CI**, required on every PR *(Amendment 1)* | No CI; another CI service | Catches broken builds before merge. Free for public repos. It lives next to the Issues and PRs |
 
 ---

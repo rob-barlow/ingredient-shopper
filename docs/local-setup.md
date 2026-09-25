@@ -174,11 +174,11 @@ If all five work, you're ready.
 From `backend/`, in PowerShell:
 
 ```powershell
-.\mvnw.cmd spring-boot:run      # starts on SERVER_PORT (default 8080)
+.\mvnw.cmd spring-boot:run      # starts on SERVER_PORT (default 8081)
 .\mvnw.cmd verify               # build + generate from the contract + unit tests
 ```
 
-Check it's up: open <http://localhost:8080/actuator/health> and you should see `"status":"UP"`. That includes the database check.
+Check it's up: open <http://localhost:8081/actuator/health> and you should see `"status":"UP"`. That includes the database check.
 
 - The first build downloads Maven and all dependencies, so it takes a few minutes. Later builds are fast.
 - The API interfaces are **generated** from `contracts/openapi.yaml` into `backend/target/generated-sources/openapi` on every build. Never edit them.
@@ -201,4 +201,4 @@ Check it's up: open <http://localhost:8080/actuator/health> and you should see `
 | `curl` fails with `CRYPT_E_NO_REVOCATION_CHECK` | A Windows `curl` quirk. Add `--ssl-no-revoke` |
 | **Maven/Java fails with `PKIX path building failed`** | Your network inspects HTTPS and re-signs it with its own certificate (common on company networks). Windows trusts that certificate, but Java uses its own list. Tell Java to use the Windows list, **on your machine only** (never commit this): `[Environment]::SetEnvironmentVariable("JAVA_TOOL_OPTIONS", "-Djavax.net.ssl.trustStoreType=Windows-ROOT", "User")`, then open a new terminal. This covers both Maven's downloads and the running app's outbound calls (e.g. the Claude API in 006). Java will print "Picked up JAVA_TOOL_OPTIONS…" at startup, which is harmless |
 | **`npx` fails with a certificate error** | The same cause. `$env:NODE_OPTIONS="--use-system-ca"` (or set it as a User variable like the line above) |
-| **Port 8080 is already in use** (health check gives a 404, or the backend fails to start) | Another program is on 8080. Find it with `Get-NetTCPConnection -LocalPort 8080 -State Listen`, or set `SERVER_PORT=8081` in `.env`. If you change it, update the frontend's `ApiBaseUrl` to match (T-006) |
+| **The port is already in use** (the health check gives an unexpected 404, or the backend fails to start) | Another program is on that port. The default is **8081**, because 8080 is often taken. Find the culprit with `Get-NetTCPConnection -LocalPort 8081 -State Listen`, or pick another port with `SERVER_PORT` in `.env`. If you change it, update the frontend's `ApiBaseUrl` to match (T-006) |

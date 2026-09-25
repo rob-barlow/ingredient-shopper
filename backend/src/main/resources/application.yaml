@@ -24,14 +24,17 @@ spring:
       ddl-auto: validate       # Flyway owns the schema (ADR-004). Hibernate only checks it matches
 
   flyway:
-    locations: classpath:db/migration   # T-005 adds the dev-only seed location (ADR-017)
+    locations: classpath:db/migration   # always. classpath:db/seed is added when SEED_DEMO_DATA=true (FlywayConfig)
+    # Seed files are repeatable (R__) migrations. If a seeded database is later started with
+    # SEED_DEMO_DATA=false, their history entries have no matching file. That's fine, so don't fail on it.
+    ignore-migration-patterns: "*:future,repeatable:missing"
 
   mvc:
     problemdetails:
       enabled: true            # Spring's own errors use RFC 9457 Problem Details (plan §6)
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8081}   # 8081 by default: 8080 is often taken on dev machines
 
 management:
   endpoints:
@@ -43,5 +46,6 @@ management:
       show-details: never      # just {"status":"UP"}: don't leak internals publicly
 
 shopper:
+  seed-demo-data: ${SEED_DEMO_DATA:false}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5000}
