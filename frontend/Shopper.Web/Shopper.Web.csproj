@@ -10,8 +10,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
 
-    <ContractFile>$(MSBuildProjectDirectory)\..\..\contracts\openapi.yaml</ContractFile>
-    <ApiClientFile>$(MSBuildProjectDirectory)\Api\Generated\ShopperApiClient.g.cs</ApiClientFile>
+    <ContractFile>$(MSBuildProjectDirectory)/../../contracts/openapi.yaml</ContractFile>
+    <ApiClientFile>$(MSBuildProjectDirectory)/Api/Generated/ShopperApiClient.g.cs</ApiClientFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,7 +41,7 @@
     clean checkout it doesn't exist yet when the project is read, and it's added back after generation.
   -->
   <ItemGroup>
-    <Compile Remove="Api\Generated\**" />
+    <Compile Remove="Api/Generated/**" />
   </ItemGroup>
   <Target Name="IncludeApiClient" AfterTargets="GenerateApiClient" BeforeTargets="CoreCompile">
     <ItemGroup>

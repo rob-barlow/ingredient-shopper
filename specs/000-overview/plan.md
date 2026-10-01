@@ -301,11 +301,12 @@ A **GitHub Actions** workflow runs on every PR and every push to `main`:
 
 | Job | Steps |
 |---|---|
+| `contract` | Lint `contracts/openapi.yaml` (Redocly) *(added in T-008)* |
 | `backend` | Build (including code generation from the contract) and run unit tests |
 | `frontend` | Build (including NSwag client generation) and run bUnit tests |
 | `api-tests` | Start **PostgreSQL** (a GitHub Actions *service container*), start the backend with `SEED_DEMO_DATA=true`, then run `api-tests` against it |
 
-All three must pass before a PR can merge (Article XII). The AI evaluation (`eval/`) **isn't** run in CI, because it calls the paid Claude API. *(The service container is only for CI. Running the app locally still needs no containers, per Article IV.)*
+All four must pass before a PR can merge (Article XII). The AI evaluation (`eval/`) **isn't** run in CI, because it calls the paid Claude API. *(The service container is only for CI. Running the app locally still needs no containers, per Article IV.)*
 
 **Why API tests set up data through the API:** in Stages 2 and 3 the database gets split up and restructured. Tests that insert rows directly would break, while tests that only use the API keep working, which is exactly the safety net Article IX asks for. In Stage 3, `BASE_URL` points at whatever sits in front of the services, and the **same tests** run unchanged.
 

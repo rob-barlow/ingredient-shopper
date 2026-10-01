@@ -101,6 +101,7 @@ Each task follows Article XII: one branch, one PR, CI must pass, and only Rob me
 ### T-008 · CI workflow
 **Owner:** AI · **Implements:** plan §10 (CI), ADR-018, Article XII
 - `.github/workflows/ci.yml` running on PRs and pushes to `main`.
+- `contract` job: lint `contracts/openapi.yaml` with Redocly *(added during T-008, as promised in `contracts/README.md`)*.
 - `backend` job: JDK, `./mvnw verify`.
 - `frontend` job: .NET SDK, `dotnet build` and `dotnet test`.
 - `api-tests` job: a PostgreSQL **service container**, start the backend with `SEED_DEMO_DATA=true`, wait for health, then run `api-tests`.
@@ -120,7 +121,7 @@ Each task follows Article XII: one branch, one PR, CI must pass, and only Rob me
 
 ### T-010 · Protect `main`
 **Owner:** **Rob** · **Implements:** Article XII
-- In the GitHub repo settings, add a **branch protection rule** (or ruleset) for `main`: require a pull request, require the CI status checks (`backend`, `frontend`, `api-tests`) to pass, and block direct pushes.
+- In the GitHub repo settings, add a **branch protection rule** (or ruleset) for `main`: require a pull request, require the CI status checks (`contract`, `backend`, `frontend`, `api-tests`) to pass, and block direct pushes.
 - *Don't* require an approving review. On a solo repo you're the PR author, and authors can't approve their own PRs.
 - The AI can explain each setting as you go.
 
