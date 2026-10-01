@@ -39,7 +39,9 @@ These are listed again in the relevant later feature's tasks, so they can't be f
 
 ## 2. Contract additions (`contracts/openapi.yaml`, v1)
 
-New tags: `auth`, `catalogue`, `admin`. All error responses use the existing `Problem` responses.
+New tags: `auth`, `catalogue`, `admin`, `stock`. All error responses use the existing `Problem` responses.
+
+*`stock` is its own tag (decided while writing tasks.md):* it generates a separate `StockApi` interface. That lets the stock adjustment's contract and test-first API tests be merged **before** the endpoint exists. An unimplemented interface is fine, but adding the operation to `AdminApi` would break the build of the existing `AdminProductsController` (`skipDefaultInterface`).
 
 ### Endpoints
 
@@ -112,7 +114,7 @@ CREATE TABLE admin_sessions (
 
 | Layer | Classes | Notes |
 |---|---|---|
-| `controller/` | `AuthController implements AuthApi` · `CatalogueController implements CatalogueApi` · `AdminProductsController implements AdminApi` | Thin: they map generated models ↔ service calls. No rules here |
+| `controller/` | `AuthController implements AuthApi` · `CatalogueController implements CatalogueApi` · `AdminProductsController implements AdminApi` · `StockController implements StockApi` *(Rob)* | Thin: they map generated models ↔ service calls. No rules here |
 | `service/` | `AuthService` · `ProductService` · `StockService` | All the business rules and `@Transactional` boundaries |
 | `repository/` | `ProductRepository` · `CategoryRepository` · `AdminSessionRepository` | Spring Data JPA. `ProductRepository` gets the conditional stock update |
 | `entity/` | `ProductEntity` · `CategoryEntity` · `AdminSessionEntity` | `name_key` is mapped **read-only** (the database generates it) |
