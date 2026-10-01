@@ -1,6 +1,6 @@
 # 004 — Admin: Inventory & Stock · Tasks
 
-> **Status:** Draft
+> **Status:** ✅ Agreed (2026-10-01)
 > **Implements:** [plan.md](plan.md) · [spec.md](spec.md)
 > **Last updated:** 2026-10-01
 
@@ -12,16 +12,16 @@ Each task: one branch (`t-NNN-…`), one PR, CI green, Rob merges (Article XII).
 
 | ID | Task | Owner | Depends on | Issue |
 |---|---|---|---|---|
-| T-011 | Contract: auth, catalogue and admin product endpoints | AI | — | |
-| T-012 | Migrations V2/V3, entities and repositories | AI | T-011 | |
-| T-013 | Admin login and the security filter | AI | T-012 | |
-| T-014 | Categories and product read endpoints | AI | T-012 | |
-| T-015 | Create and edit product endpoints · **Rob's worked example** | AI | T-013, T-014 | |
-| T-016 | Stock adjustment contract, plus **API tests first (disabled)** | AI | T-015 | |
-| T-017 | **Stock adjustment endpoint** | **Rob** | T-016 | |
-| T-018 | Frontend: admin session, login page and header | AI | T-013 | |
-| T-019 | Frontend: product detail page, product form and Add product | AI | T-015, T-018 | |
-| T-020 | Frontend: Adjust stock control | AI | T-017, T-019 | |
+| T-011 | Contract: auth, catalogue and admin product endpoints | AI | — | [#23](https://github.com/rob-barlow/ingredient-shopper/issues/23) |
+| T-012 | Migrations V2/V3, entities and repositories | AI | T-011 | [#24](https://github.com/rob-barlow/ingredient-shopper/issues/24) |
+| T-013 | Admin login and the security filter | AI | T-012 | [#25](https://github.com/rob-barlow/ingredient-shopper/issues/25) |
+| T-014 | Categories and product read endpoints | AI | T-012 | [#26](https://github.com/rob-barlow/ingredient-shopper/issues/26) |
+| T-015 | Create and edit product endpoints · **Rob's worked example** | AI | T-013, T-014 | [#27](https://github.com/rob-barlow/ingredient-shopper/issues/27) |
+| T-016 | Stock adjustment contract, plus **API tests first (disabled)** | AI | T-015 | [#28](https://github.com/rob-barlow/ingredient-shopper/issues/28) |
+| T-017 | **Stock adjustment endpoint** | **Rob** | T-016 | [#29](https://github.com/rob-barlow/ingredient-shopper/issues/29) |
+| T-018 | Frontend: admin session, login page and header | AI | T-013 | [#30](https://github.com/rob-barlow/ingredient-shopper/issues/30) |
+| T-019 | Frontend: product detail page, product form and Add product | AI | T-015, T-018 | [#31](https://github.com/rob-barlow/ingredient-shopper/issues/31) |
+| T-020 | Frontend: Adjust stock control | AI | T-017, T-019 | [#32](https://github.com/rob-barlow/ingredient-shopper/issues/32) |
 
 ```mermaid
 flowchart LR

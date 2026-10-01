@@ -33,6 +33,12 @@ servers:
 tags:
   - name: operations
     description: Health and other operational endpoints (not versioned; not part of the product)
+  - name: auth
+    description: Admin login and logout (000 §5.1, 004 AC-1–8, ADR-006)
+  - name: catalogue
+    description: Public product and category reads (001)
+  - name: admin
+    description: Admin-only product management (004). Every operation needs `bearerAuth`
 
 paths:
   /actuator/health:
@@ -59,7 +65,186 @@ paths:
               schema:
                 $ref: '#/components/schemas/Health'
 
+  /v1/auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: Log in as the admin
+      description: |
+        Checks the single admin account (000 §5.1). On success it returns an opaque session
+        token (ADR-006): send it as `Authorization: Bearer <token>` on admin requests. A wrong
+        username and a wrong password get the **same** 401 (004 AC-3).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Wrong username or password (004 AC-3). Same response for both.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /v1/auth/logout:
+    post:
+      tags: [auth]
+      operationId: logout
+      summary: Log out (ends the session)
+      description: The token stops working immediately (004 AC-7).
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logged out.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/me:
+    get:
+      tags: [auth]
+      operationId: getCurrentAdmin
+      summary: Who is logged in
+      description: |
+        Lets the frontend check a stored token is still valid, e.g. after a reload
+        (004 AC-5) or a logout in another tab.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The token is valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/categories:
+    get:
+      tags: [catalogue]
+      operationId: listCategories
+      summary: The fixed category list, alphabetical
+      description: 000 §5.5, 001 AC-10. Also feeds the product form's category dropdown (004 AC-18).
+      security: []
+      responses:
+        '200':
+          description: Every category, sorted by name.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /v1/products/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    get:
+      tags: [catalogue]
+      operationId: getProduct
+      summary: Product detail
+      description: Everything on the product detail page (001 AC-24), including the exact stock level.
+      security: []
+      responses:
+        '200':
+          description: The product.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/admin/products:
+    post:
+      tags: [admin]
+      operationId: createProduct
+      summary: Create a product
+      description: |
+        004 AC-13–20. Every field is required (spec §3 field rules). A name that matches an
+        existing product, ignoring case and leading/trailing spaces, is a 422 field error on
+        `name` (AC-14). The name is stored trimmed.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewProduct'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /v1/admin/products/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    put:
+      tags: [admin]
+      operationId: updateProduct
+      summary: Edit a product's details
+      description: |
+        004 AC-13–17, AC-21–22. Replaces every field except stock: stock only changes through
+        stock adjustments (AC-21). Keeping the product's own name isn't a duplicate (AC-15).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '200':
+          description: Updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
 components:
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      description: The product's id.
+      schema:
+        type: string
+        format: uuid
+
   securitySchemes:
     bearerAuth:
       type: http
@@ -117,6 +302,132 @@ components:
         message:
           type: string
           description: A message suitable for showing next to that field.
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 1        # 004 AC-4: both fields required
+          maxLength: 100
+        password:
+          type: string
+          minLength: 1
+          maxLength: 200
+          format: password
+
+    LoginResult:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          description: Opaque session token. Lasts until logout (004 §6).
+
+    AdminInfo:
+      type: object
+      required: [username]
+      properties:
+        username:
+          type: string
+
+    Category:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+
+    UnitMeasure:
+      type: string
+      description: The fixed list of unit measures (000 glossary, Amendment 3).
+      enum: [g, kg, ml, l, each]
+
+    ProductInput:
+      type: object
+      description: |
+        The editable fields of a product (004 spec §3). Used to edit. `NewProduct` adds
+        `startingStock` for create. Rules OpenAPI can't express (unique name, at most 2
+        decimal places on `unitAmount`, `categoryId` existing) are checked by the backend
+        and reported as 422 field errors.
+      required: [name, description, categoryId, unitAmount, unitMeasure, pricePence, imageUrl]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[ -~]+$'      # printable ASCII
+          examples: [Plain flour]
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          pattern: '^[ -~]+$'
+        categoryId:
+          type: integer
+          format: int32
+        unitAmount:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 9999999.99
+          description: At most 2 decimal places, e.g. 500, 1.5, 6.
+          examples: [1.5]
+        unitMeasure:
+          $ref: '#/components/schemas/UnitMeasure'
+        pricePence:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 999999           # £9,999.99 (004 field rules)
+          description: Price in pence (ADR-005). 120 = £1.20.
+          examples: [120]
+        imageUrl:
+          type: string
+          maxLength: 2000
+          pattern: '^https?://.+'
+
+    NewProduct:
+      description: A product to create. All of `ProductInput`, plus the starting stock.
+      allOf:
+        - $ref: '#/components/schemas/ProductInput'
+        - type: object
+          required: [startingStock]
+          properties:
+            startingStock:
+              type: integer
+              format: int32
+              minimum: 0
+
+    ProductDetail:
+      type: object
+      required: [id, name, description, category, unitAmount, unitMeasure, pricePence, imageUrl, stockLevel]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+        unitAmount:
+          type: number
+        unitMeasure:
+          $ref: '#/components/schemas/UnitMeasure'
+        pricePence:
+          type: integer
+          format: int32
+        imageUrl:
+          type: string
+        stockLevel:
+          type: integer
+          format: int32
+          minimum: 0
 
   responses:
     BadRequest:
