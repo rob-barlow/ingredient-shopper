@@ -183,6 +183,21 @@ Check it's up: open <http://localhost:8081/actuator/health> and you should see `
 - The first build downloads Maven and all dependencies, so it takes a few minutes. Later builds are fast.
 - The API interfaces are **generated** from `contracts/openapi.yaml` into `backend/target/generated-sources/openapi` on every build. Never edit them.
 - Use `mvnw.cmd` from PowerShell. The `./mvnw` script (for Git Bash, macOS and Linux) downloads Maven with `curl`, which can hit the certificate problems below on Windows.
+- The backend **won't start** without `ADMIN_USERNAME` and `ADMIN_PASSWORD_BCRYPT` in `.env` (step 5). That's deliberate: there's no built-in default login to guess.
+
+### Logging in as the admin (by hand)
+
+To try the login API from PowerShell (use your own username and the **plain** password you hashed):
+
+```powershell
+$login = Invoke-RestMethod -Method Post -Uri http://localhost:8081/v1/auth/login `
+           -ContentType application/json -Body '{"username":"glenda","password":"your-password"}'
+$headers = @{ Authorization = "Bearer $($login.token)" }
+Invoke-RestMethod -Uri http://localhost:8081/v1/auth/me -Headers $headers                    # → your username
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/v1/auth/logout -Headers $headers   # the token is now dead
+```
+
+A wrong username or password gives `401 "Wrong username or password"` either way (004 AC-3).
 
 ### Frontend
 
@@ -208,9 +223,11 @@ dotnet test         # builds everything (including the generated API client) and
 Black-box tests that call the **running** backend over HTTP and check every response against the contract (see [api-tests/README.md](../api-tests/README.md)). Start the backend first, then from `api-tests/`:
 
 ```powershell
-.\mvnw.cmd test                                     # against http://localhost:8081
-.\mvnw.cmd test "-DBASE_URL=http://localhost:9000"    # against another address
+.\mvnw.cmd test "-DADMIN_USERNAME=glenda" "-DADMIN_PASSWORD=your-password"     # against http://localhost:8081
+.\mvnw.cmd test "-DBASE_URL=http://localhost:9000" "-DADMIN_USERNAME=..." "-DADMIN_PASSWORD=..."
 ```
+
+Tests that need the admin log in through the API, so they need the **plain** admin password: the one whose bcrypt hash is in the backend's `.env`. If either value is missing, those tests fail with a message saying which.
 
 *Tip:* API tests create lots of data. Point the backend at the `shopper_test` database while running them, so your `shopper` database stays tidy for trying the app by hand:
 

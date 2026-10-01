@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 class FlywayConfigTest {
 
     private static List<String> locationsAfterCustomizing(boolean seedDemoData) {
-        var properties = new ShopperProperties(new ShopperProperties.Cors(List.of()), seedDemoData);
+        var properties = new ShopperProperties(new ShopperProperties.Cors(List.of()), seedDemoData, null);
         var flyway = new FluentConfiguration().locations("classpath:db/migration");
 
         new FlywayConfig().seedDataLocation(properties).customize(flyway);

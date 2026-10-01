@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.glendas.shopper.service.WrongCredentialsException;
+
 /**
  * Turns exceptions into the contract's {@code Problem} responses (RFC 9457, plan §6).
  *
@@ -49,6 +51,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problem.setProperty("errors", errors);
 
         return ResponseEntity.unprocessableContent().body(problem);
+    }
+
+    /** 004 AC-3: the same 401 whether the username or the password was wrong. */
+    @ExceptionHandler(WrongCredentialsException.class)
+    ProblemDetail handleWrongCredentials(WrongCredentialsException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problem.setTitle("Unauthorized");
+        problem.setDetail(WrongCredentialsException.MESSAGE);
+        return problem;
     }
 
     @ExceptionHandler(Exception.class)
