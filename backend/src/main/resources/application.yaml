@@ -47,5 +47,8 @@ management:
 
 shopper:
   seed-demo-data: ${SEED_DEMO_DATA:false}
+  admin:                                     # the single admin account (000 §5.1). No defaults, on purpose:
+    username: ${ADMIN_USERNAME}              # the app refuses to start without them, rather than run with
+    password-bcrypt: ${ADMIN_PASSWORD_BCRYPT} # a guessable built-in login
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5000}
