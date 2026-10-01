@@ -4,3 +4,5 @@ openapi.yaml:
   operation-4xx-response:
     # The health check answers 200 (up) or 503 (down). It has no client errors.
     - '#/paths/~1actuator~1health/get/responses'
+    # The fixed category list always succeeds. There's no client error to describe.
+    - '#/paths/~1v1~1categories/get/responses'

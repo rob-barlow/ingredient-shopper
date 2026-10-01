@@ -17,5 +17,10 @@ Until v1 is first released (the end of Stage 1), endpoints are added under **Unr
 - Shared `Problem` (RFC 9457) and `FieldError` schemas, and reusable error responses: `BadRequest`, `Unauthorized`, `NotFound`, `Conflict`, `ValidationFailed`.
 - `GET /actuator/health` (operational, unversioned).
 
+- **004 (T-011):** admin auth: `POST /v1/auth/login`, `POST /v1/auth/logout` and `GET /v1/auth/me`.
+- **004 (T-011):** catalogue reads: `GET /v1/categories` and `GET /v1/products/{id}`.
+- **004 (T-011):** admin products: `POST /v1/admin/products` and `PUT /v1/admin/products/{id}`.
+- **004 (T-011):** schemas `LoginRequest`, `LoginResult`, `AdminInfo`, `Category`, `UnitMeasure`, `ProductInput`, `NewProduct` and `ProductDetail`, plus the shared `ProductId` path parameter.
+
 ### Changed
 - Local development server is now `http://localhost:8081` (was 8080, which is often taken on dev machines).
