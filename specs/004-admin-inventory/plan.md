@@ -194,6 +194,10 @@ Because the database applies `+ delta` to *whatever the current value is*, a con
 
 ---
 
-## 8. Open questions
+## 8. Decisions
 
-1. **Test-first for your task (step 6):** I'd write the stock adjustment's **API tests first**, marked `@Disabled`. Your PR then **removes `@Disabled`**, and CI proves your endpoint meets the spec. That's test-driven development, and you get a clear finish line. Alternatively, I write the API tests *after* your PR. *Recommendation:* tests first.
+1. **Test-first for Rob's task** *(decided 2026-10-01)*: the stock adjustment's API tests (AC-25 to AC-31) are written **before** the endpoint, and committed with `@Disabled("Enabled by T-0NN")`. Rob's PR removes `@Disabled`, and CI must pass. That's test-driven development: the tests are the finish line.
+
+## 9. Open questions
+
+*None at present.*
