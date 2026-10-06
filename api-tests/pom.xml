@@ -33,6 +33,9 @@
 
     <!-- Overridable on the command line: -DBASE_URL=... -->
     <BASE_URL>http://localhost:8081</BASE_URL>
+    <!-- The admin account for tests (004). No defaults: pass them with -D (see README) -->
+    <ADMIN_USERNAME></ADMIN_USERNAME>
+    <ADMIN_PASSWORD></ADMIN_PASSWORD>
     <CONTRACT_FILE>${project.basedir}/../contracts/openapi.yaml</CONTRACT_FILE>
   </properties>
 
@@ -86,6 +89,8 @@
           <systemPropertyVariables>
             <BASE_URL>${BASE_URL}</BASE_URL>
             <CONTRACT_FILE>${CONTRACT_FILE}</CONTRACT_FILE>
+            <ADMIN_USERNAME>${ADMIN_USERNAME}</ADMIN_USERNAME>
+            <ADMIN_PASSWORD>${ADMIN_PASSWORD}</ADMIN_PASSWORD>
           </systemPropertyVariables>
         </configuration>
       </plugin>

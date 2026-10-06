@@ -25,6 +25,8 @@
     <java.version>25</java.version>
     <openapi-generator.version>7.25.0</openapi-generator.version>
     <contract.file>${project.basedir}/../contracts/openapi.yaml</contract.file>
+    <argLine/>  <!-- empty default, so @{argLine} below always resolves -->
+
   </properties>
 
   <dependencies>
@@ -85,6 +87,30 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <!--
+        Load Mockito as a Java agent when tests start, as Mockito's docs recommend. Without this,
+        Mockito "self-attaches" at runtime, which newer JDKs warn about and will eventually block.
+        The dependency plugin's `properties` goal exposes each dependency's jar path as a property.
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+        </configuration>
       </plugin>
 
       <!--

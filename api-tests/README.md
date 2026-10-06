@@ -7,16 +7,23 @@ Black-box tests of the backend's HTTP API (constitution Article IX, plan §10, A
 The backend must be running first (see [docs/local-setup.md](../docs/local-setup.md)). Then, from `api-tests/`:
 
 ```powershell
-.\mvnw.cmd test                                   # against http://localhost:8081
-.\mvnw.cmd test "-DBASE_URL=http://localhost:9000"  # somewhere else
-.\mvnw.cmd test "-Dtest=HealthApiTest"            # one class
+.\mvnw.cmd test "-DADMIN_USERNAME=glenda" "-DADMIN_PASSWORD=..."     # against http://localhost:8081
+.\mvnw.cmd test "-DBASE_URL=http://localhost:9000" ...                # somewhere else
+.\mvnw.cmd test "-Dtest=HealthApiTest"                                # one class
 ```
 
-*`ContractValidationSelfTest` needs no backend. It checks the safety net itself.*
+- **`ADMIN_USERNAME` / `ADMIN_PASSWORD`**: the admin account the backend was started with. The password is the **plain** one, whose bcrypt hash is in the backend's config. CI passes CI-only values.
+- *`ContractValidationSelfTest` needs no backend. It checks the safety net itself.*
 
 ## Rules for writing tests
 
-1. **Extend `ApiTestBase` and start requests with `api()`**, never with REST Assured's `given()`. `api()` adds the base URL, JSON headers, and **contract validation of every request and response**.
+1. **Extend `ApiTestBase` and start requests with one of its helpers**, never with REST Assured's `given()`:
+   - **`api()`**: the base URL, JSON headers, and **contract validation of every request and response**
+   - **`asAdmin()`**: `api()` logged in as the admin (one shared token, logged in once)
+   - **`withToken(token)`**: `api()` with a specific bearer token, e.g. a fresh session from `AdminLogin.freshToken()`, or a made-up one
+   - **`apiSendingInvalidRequest()`**: **only** for tests that deliberately break the contract to prove the backend rejects it (empty required fields, a missing token). The **response** is still checked. Anywhere else it would hide mistakes in the test
+
+   *Set tokens with these helpers, not REST Assured's `auth().oauth2()`, which adds the header too late for the contract check to see it. For endpoints that return no body (e.g. logout's 204), use `.accept(ContentType.ANY)`, as real clients do.*
 2. **HTTP only.** No imports from `backend/`, no database access, no knowledge of classes or tables.
 3. **Set up data through the API**, e.g. log in as the admin and create products with `POST /v1/admin/products`. Never insert rows directly: the database gets restructured in Stages 2 and 3.
 4. **Independent and repeatable.** Each test creates what it needs, with **unique names** (e.g. `"Test flour " + UUID.randomUUID()`), so it never relies on another test or on a previous run. The database keeps data between runs.
